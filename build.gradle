@@ -1,7 +1,9 @@
+
 plugins {
-    id 'org.springframework.boot' version '2.7.4'
-    id 'io.spring.dependency-management' version '1.0.14.RELEASE'
-    id 'java'
+	id 'org.springframework.boot' version '2.7.4'
+	id 'io.spring.dependency-management' version '1.0.14.RELEASE'
+	id 'java'
+	id "com.diffplug.spotless" version "6.11.0"
 }
 
 group = 'com.example'
@@ -9,22 +11,46 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
 
 configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
 }
 
 repositories {
-    mavenCentral()
+	mavenCentral()
+}
+
+spotless {
+	format 'misc', {
+		target '**/*.gradle', '**/.gitignore'
+
+		trimTrailingWhitespace()
+		indentWithTabs()
+		endWithNewline()
+	}
+
+	java {
+		importOrder 'java', 'javax', 'org', 'com', 'com.timematters.', ''
+		removeUnusedImports()
+		googleJavaFormat('1.8').aosp()
+	}
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+defaultTasks 'clean', 'spotlessApply' ,  'bootRun'
+
 tasks.named('test') {
-    useJUnitPlatform()
+	useJUnitPlatform()
+}
+gradle.taskGraph.whenReady {
+	spotlessApply
 }
